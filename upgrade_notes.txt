@@ -1,0 +1,39 @@
+These are notes on upgrading an old instance of RT (4.0.4) to the 4.4.2. This includes adding full-text index and full UTF-8 support (utf8mb4.)
+
+Scripts are included for sending SMS through Twilio.
+
+change utf8 to utf8mb4
+    $ sed -i "s/SET NAMES utf8 /SET NAMES utf8mb4 /g" rtdb.sql
+    $ sed -i "s/SET character_set_client = utf8 /SET character_set_client = utf8mb4 /g" rtdb.sql
+    $ sed -i "s/DEFAULT CHARSET=utf8;/DEFAULT CHARSET=utf8mb4;/g" rtdb.sql
+import database
+null field in users table:
+    SQL: update Users set ExternalAuthId=NULL;
+add timezones to database:
+    $ apk add --no-cache mysql mysql-client
+    $ mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -h db -P 3306 -u root -p mysql
+restart db
+run database upgrade:
+    # comment fulltext index config section
+    $ /fileenv rt-setup-database --action upgrade --datadir /etc/rt4/upgrade
+set up full text indexing:
+    $ /fileenv /usr/sbin/rt-setup-fulltext-index --dba-password <password>
+    # uncomment fulltext index config section
+Change fulltext tables to utf8mb4
+    SQL: ALTER TABLE AttachmentsIndex CONVERT TO CHARACTER SET utf8mb4;
+Finish fulltext indexing
+    $ /fileenv rt-fulltext-indexer
+restart db and rt4
+
+Set theme CSS
+
+Create new Custom Role:
+    Role Name: Queue Manager
+    Description: Receives notifications about new Tickets in a Queue
+Apply Queue Manager to Queues
+Set Queue Managers (Queue Watchers)
+Replace Scripts:
+    On Create Notify Queue Managers by SMS: notify_managers.pm
+    On Owner Change Notify Owner By SMS: notify_owner_change.pm
+    Put "return 1;" in "Custom action preparation code"
+    Put script body in "Custom action commit code"

@@ -1,0 +1,22 @@
+/* Page */
+body { background: rgb(252, 254, 252) }
+div#body { background: rgb(252, 254, 252); color: rgb(0, 0, 0) }
+
+/* Menu bar */
+div#quickbar {}
+#main-navigation #app-nav.sf-shadow > li, #main-navigation #app-nav.sf-shadow > li > a, #prefs-menu > li, #prefs-menu > li > a, #logo .rtname {}
+
+/* Title bar */
+div#header { background: rgb(36, 86, 164); color: rgb(255, 255, 255) }
+
+/* Page title */
+div#header h1 { color: rgb(252, 254, 252) }
+
+/* Page content */
+div#body {}
+
+/* Buttons */
+input[type="reset"], input[type="submit"], input[class="button"] { background: rgb(196, 2, 4); color: rgb(255, 255, 255) }
+
+/* Button hover */
+input[type="reset"]:hover, input[type="submit"]:hover, input[class="button"]:hover { background: rgb(204, 6, 4); color: rgb(255, 255, 255) }
