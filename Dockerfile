@@ -17,7 +17,7 @@ FROM alpine:3.7
 COPY --from=builder /go/bin/fileenv /
 COPY --from=builder /go/bin/twilio-send-sms /send-sms
 
-RUN apk add --no-cache bash perl-ldap perl-gdtextutil perl-gdgraph opensmtpd ca-certificates mysql-client && \
+RUN apk add --no-cache bash python3 perl-ldap perl-gdtextutil perl-gdgraph opensmtpd ca-certificates mysql-client && \
     wget http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/rt4-4.4.2-r2.apk && \
     wget http://dl-cdn.alpinelinux.org/alpine/edge/testing/x86_64/perl-http-parser-xs-0.17-r0.apk && \
     wget http://dl-cdn.alpinelinux.org/alpine/edge/testing/x86_64/perl-starman-0.4014-r0.apk && \
@@ -30,5 +30,6 @@ RUN mkdir /shredder
 
 COPY LocalConfig.pm /etc/rt4/RT_SiteConfig.d/
 COPY run.sh /
+COPY rt-search-id /
 
 CMD ["/fileenv", "bash", "/run.sh"]

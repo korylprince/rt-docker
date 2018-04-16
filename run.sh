@@ -23,7 +23,7 @@ rm /etc/smtpd/aliases
 IFS=","
 for alias in $(echo "$RT_ALIASES"); do
 IFS=":" read -ra params <<< "$alias"
-    echo "${params[0]}: |rt-mailgate --url http://localhost --action correspond --queue \"${params[1]}\"" >> /etc/smtpd/aliases
+    echo "${params[0]}: |/rt-search-id | rt-mailgate --url http://localhost --action correspond --queue \"${params[1]}\"" >> /etc/smtpd/aliases
 done
 
 # start smtpd

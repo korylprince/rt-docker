@@ -1,0 +1,119 @@
+#!/usr/bin/python3
+
+# This script is meant to be used as an intermediary between
+# your MTA and rt-mailgate. It scans incoming messages for RT
+# Ticket identifiers (in Subject and References headers) and
+# adds the appropriate Subject header tag so RT will add the
+# message to the appropriate Ticket instead of creating a new
+# one. This is useful for bounce messages or other messages that
+# get sent to RT that don't include the proper Subject header tag.
+
+import sys
+import io
+import re
+import email
+
+subject_tag_re = "\[.* #\d+\]"
+references_id_re = "<RT-Ticket-(\d+).*?>"
+
+def subject_tag(msg):
+    match = re.search(subject_tag_re, msg.get("Subject", ""))
+    if match is None:
+        return None
+    return match.group(0)
+
+def attachment_tag(msg):
+    if not msg.is_multipart():
+        return None
+
+    tags = []
+    for m in msg.walk():
+        tag = subject_tag(m)
+        if tag is not None:
+            tags.append(tag)
+    
+    if len(set(tags)) == 0:
+        return None
+
+    if len(set(tags)) == 1:
+        return tags[0]
+
+    ids = []
+    for tag in tags:
+        ids.append(re.search("#(\d+)", tag).group(1))
+
+    if len(set(ids)) == 1:
+        return tags[0]
+
+    print("Multiple Ticket IDs present:", ", ".join(ids), file=sys.stderr)
+
+def references_id(msg):
+    match = re.search(references_id_re, msg.get("References", ""))
+    if match is None:
+        return None
+    return match.group(1)
+
+def attachment_id(msg):
+    if not msg.is_multipart():
+        return None
+
+    ids = []
+    for m in msg.walk():
+        id = references_id(m)
+        if id is not None:
+            ids.append(id)
+
+    if len(set(ids)) == 0:
+        return None
+
+    if len(set(ids)) == 1:
+        return ids[0]
+
+    print("Multiple Ticket IDs present:", ", ".join(ids), file=sys.stderr)
+
+def read_msg(fp):
+    return email.message_from_file(fp)
+
+def rewrite_msg(msg):
+    # tag already present
+    if subject_tag(msg) is not None:
+        return
+
+    # tag found in attached message
+    tag = attachment_tag(msg)
+    if tag is not None:
+        print('Found RT tag in attachment Subject header; adding "{0}" tag to Subject'.format(tag), file=sys.stderr)
+        msg.replace_header("Subject", tag + " " + msg.get("Subject", ""))
+        return
+
+    # id found in References header
+    id = references_id(msg)
+    if id is not None:
+        tag = "[RT #{0}]".format(tag)
+        print('Found RT ID in References header; adding "{0}" tag to Subject'.format(tag), file=sys.stderr)
+        msg.replace_header("Subject", tag + " " + msg.get("Subject", ""))
+        return
+
+    # id found in attachment References header
+    id = attachment_id(msg)
+    if id is not None:
+        tag = "[RT #{0}]".format(tag)
+        print('Found RT ID in attachment References header; adding "{0}" tag to Subject'.format(tag), file=sys.stderr)
+        msg.replace_header("Subject", tag + " " + msg.get("Subject", ""))
+
+def write_msg(fp, msg):
+    fp.write(msg.as_string())
+
+if __name__ == "__main__":
+    data = sys.stdin.read()
+    buf = io.StringIO(data)
+
+    try:
+        msg = read_msg(buf)
+        rewrite_msg(msg)
+    except Exception as e:
+        print("Unable to parse message; sending as is:", str(e), file=sys.stderr)
+        sys.stdout.write(data)
+        sys.exit(0)
+
+    write_msg(sys.stdout, msg)
