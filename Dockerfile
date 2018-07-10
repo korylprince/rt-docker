@@ -12,16 +12,18 @@ RUN go install github.com/korylprince/fileenv
 RUN go install github.com/korylprince/twilio-send-sms
 
 # build image
-FROM alpine:3.7
+FROM alpine:3.8
 
 COPY --from=builder /go/bin/fileenv /
 COPY --from=builder /go/bin/twilio-send-sms /send-sms
 
+COPY ./rt4-4.4.3-r0.apk /
+
 RUN apk add --no-cache bash python3 perl-ldap perl-gdtextutil perl-gdgraph opensmtpd ca-certificates mysql-client && \
-    wget http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/rt4-4.4.2-r2.apk && \
     wget http://dl-cdn.alpinelinux.org/alpine/edge/testing/x86_64/perl-http-parser-xs-0.17-r0.apk && \
     wget http://dl-cdn.alpinelinux.org/alpine/edge/testing/x86_64/perl-starman-0.4014-r0.apk && \
-    apk add --no-cache /rt4-4.4.2-r2.apk /perl-http-parser-xs-0.17-r0.apk /perl-starman-0.4014-r0.apk && \
+    apk add --no-cache --allow-untrusted /rt4-4.4.3-r0.apk && \
+    apk add --no-cache /perl-http-parser-xs-0.17-r0.apk /perl-starman-0.4014-r0.apk && \
     rm /*.apk && \
     # patch to use utf8mb4 encoding
     sed -i "s/SET NAMES 'utf8'/SET NAMES 'utf8mb4'/g" /usr/lib/rt4/RT/Handle.pm

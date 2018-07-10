@@ -1,13 +1,25 @@
 #!/bin/bash
+set -e
 
 version=$1
 
-docker build --no-cache --tag "korylprince/rt-docker:$version" .
+tag="korylprince/rt-docker"
+itag="korylprince/rt-docker-indexer"
 
-docker push "korylprince/rt-docker:$version"
+docker build --no-cache --build-arg "VERSION=$version" --tag "$tag:$version" .
 
-cd indexer
+docker push "$tag:$version"
 
-docker build --no-cache --tag "korylprince/rt-docker-indexer:$version" .
+if [ "$2" = "latest" ]; then
+    docker tag "$tag:$version" "$tag:latest"
+    docker push "$tag:latest"
+fi
 
-docker push "korylprince/rt-docker-indexer:$version"
+docker build --no-cache --build-arg "VERSION=$version" --tag "$itag:$version" -f indexer/Dockerfile .
+
+docker push "$itag:$version"
+
+if [ "$2" = "latest" ]; then
+    docker tag "$itag:$version" "$itag:latest"
+    docker push "$itag:latest"
+fi
