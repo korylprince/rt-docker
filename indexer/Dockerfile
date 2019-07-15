@@ -16,10 +16,8 @@ FROM alpine:3.10
 COPY --from=builder /go/bin/fileenv /
 COPY --from=builder /go/bin/run-every /
 
-RUN apk add --no-cache bash mysql-client && \
-    wget http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/rt4-4.4.3-r0.apk && \
-    apk add --no-cache /rt4-4.4.3-r0.apk && \
-    rm /*.apk && \
+RUN apk add --no-cache bash mysql-client \
+    rt4=4.4.4-r0 && \
     # patch to use utf8mb4 encoding
     sed -i "s/SET NAMES 'utf8'/SET NAMES 'utf8mb4'/g" /usr/lib/rt4/RT/Handle.pm
 
