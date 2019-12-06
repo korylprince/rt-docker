@@ -6,9 +6,9 @@ my $url = "${\$RT::WebURL}m/ticket/show?id=${\$Ticket->Id}";
 my $content = $Ticket->Transactions->First->Content();
 my $sms_content = "New ${\$Ticket->QueueObj->Name} Ticket:\n$Requestor - $Subject:\n$content";
 
-# load Queue Manager role
+# load QueueManager role
 my $custom_role = RT::CustomRole->new(RT->SystemUser);
-$custom_role->Load('Queue Manager');
+$custom_role->Load('QueueManager');
 my $role = $Ticket->QueueObj->RoleGroup($custom_role->GroupType);
 
 # check if role exists for queue
@@ -18,7 +18,7 @@ if (!$role->Instance) {
 
 my $user = RT::User->new(RT->SystemUser);
 
-# send SMS to each Queue Manager
+# send SMS to each QueueManager
 my $members = $role->MembersObj->ItemsArrayRef;
 for my $member (@$members) {
     $user->Load($member->MemberId);
