@@ -36,4 +36,4 @@ while ! mysqladmin ping -h "$RT_DB_HOST" -P "$RT_DB_PORT" -u "$RT_DB_USER" -p="$
 done
 
 # start rt
-exec rt-server --server Starman
+exec rt-server --server Starlet

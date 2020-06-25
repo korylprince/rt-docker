@@ -1,4 +1,4 @@
-FROM golang:1.12-alpine as builder
+FROM golang:1.14-alpine as builder
 
 RUN apk add --no-cache git
 
@@ -12,22 +12,23 @@ RUN go install github.com/korylprince/fileenv
 RUN go install github.com/korylprince/twilio-send-sms
 
 # build image
-FROM alpine:3.10
+FROM alpine:3.12
 
 COPY --from=builder /go/bin/fileenv /
 COPY --from=builder /go/bin/twilio-send-sms /send-sms
 
 RUN apk add --no-cache bash python3 perl-ldap perl-gdtextutil perl-gdgraph opensmtpd ca-certificates mysql-client \
-    rt4=4.4.4-r0 && \
-    wget http://dl-cdn.alpinelinux.org/alpine/edge/testing/x86_64/perl-http-parser-xs-0.17-r1.apk && \
-    wget http://dl-cdn.alpinelinux.org/alpine/edge/testing/x86_64/perl-starman-0.4014-r1.apk && \
-    apk add --no-cache /perl-http-parser-xs-0.17-r1.apk /perl-starman-0.4014-r1.apk && \
-    rm /*.apk && \
+    perl-http-headers-fast perl-cookie-baker perl-starlet \
+    perl-app-cpanminus make \
+    rt4=4.4.4-r3 && \
+    # needed for Plack
+    cpanm HTTP::Entity::Parser && \
     # patch to use utf8mb4 encoding
     sed -i "s/SET NAMES 'utf8'/SET NAMES 'utf8mb4'/g" /usr/lib/rt4/RT/Handle.pm
 
 RUN mkdir /shredder
 
+COPY Web_Local.pm /usr/lib/rt4/RT/Interface/
 COPY LocalConfig.pm /etc/rt4/RT_SiteConfig.d/
 COPY run.sh /
 COPY rt-search-id /
