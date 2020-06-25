@@ -7,15 +7,17 @@ echo "$RT_SMTP_HOST" > /etc/smtpd/mailname
 rm /etc/smtpd/smtpd.conf
 
 if [ -n "$RT_SMTP_TLS_CERT" ]; then
-    echo "pki $RT_SMTP_HOST certificate \"$RT_SMTP_TLS_CERT\"" >> /etc/smtpd/smtpd.conf
+    echo "pki $RT_SMTP_HOST cert \"$RT_SMTP_TLS_CERT\"" >> /etc/smtpd/smtpd.conf
     echo "pki $RT_SMTP_HOST key \"$RT_SMTP_TLS_KEY\"" >> /etc/smtpd/smtpd.conf
 fi
 
 cat >> /etc/smtpd/smtpd.conf <<EOF
 listen on 0.0.0.0 port ${RT_SMTP_PORT} tag incoming ${RT_SMTP_TLS_OPT}
 table aliases file:/etc/smtpd/aliases
-accept from any tagged incoming for any alias <aliases>
-accept from local for any relay via "${RT_SMTP_UPSTREAM}" ${RT_SMTP_UPSTREAM_OPT}
+action act-alias expand-only alias <aliases>
+action act-relay relay host "${RT_SMTP_UPSTREAM}" ${RT_SMTP_UPSTREAM_OPT}
+match tag incoming for any action act-alias
+match from local for any action act-relay
 EOF
 
 # generate aliases
