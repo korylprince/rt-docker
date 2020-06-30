@@ -16,7 +16,7 @@ listen on 0.0.0.0 port ${RT_SMTP_PORT} tag incoming ${RT_SMTP_TLS_OPT}
 table aliases file:/etc/smtpd/aliases
 action act-alias expand-only alias <aliases>
 action act-relay relay host "${RT_SMTP_UPSTREAM}" ${RT_SMTP_UPSTREAM_OPT}
-match tag incoming for any action act-alias
+match from any tag incoming for any action act-alias
 match from local for any action act-relay
 EOF
 
