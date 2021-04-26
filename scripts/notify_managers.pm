@@ -26,7 +26,7 @@ for my $member (@$members) {
     # don't send if mobile number not set
     if ( !$user->MobilePhone ) {
         $RT::Logger->info("Not sending SMS to ${\$user->RealName}: no mobile number found.");
-        return 1;
+        next;
     }
 
     # log sending SMS
