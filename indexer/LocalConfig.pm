@@ -13,7 +13,7 @@ Set($ChartsTimezonesInDB, 1);
 # logging
 Set($LogToSyslog, undef);
 Set($LogToFile, undef);
-Set($LogToSTDERR, $ENV{'RT_LOG_LEVEL'});
+Set($LogToScreen, $ENV{'RT_LOG_LEVEL'});
 
 # enable full text search
 Set(%FullTextSearch,
