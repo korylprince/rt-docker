@@ -33,7 +33,7 @@ for my $member (@$members) {
     $RT::Logger->info("Sending New Ticket SMS to ${\$user->RealName} (${\$user->MobilePhone}): \"$Subject\" (#${\$Ticket->id}) requested by $Requestor");
 
     # run the command
-    my $command = "/send-sms -to \"${\$user->MobilePhone}\" -url \"$url\" <<EOF\n$sms_content\nEOF";
+    my $command = "/send-sms -to \"${\$user->MobilePhone}\" -url \"$url\" <<'EOF'\n$sms_content\nEOF";
 
     my $output = qx($command);
     my $status = $? >> 8;
