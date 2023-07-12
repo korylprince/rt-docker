@@ -1,0 +1,10 @@
+Encode::Detect::Detector
+GraphViz2
+HTML::FormatExternal
+HTML::Gumbo
+Module::Path
+MooseX::NonMoose
+MooseX::Role::Parameterized
+Path::Dispatcher
+Text::WordDiff
+Web::Machine

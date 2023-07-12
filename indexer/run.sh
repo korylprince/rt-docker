@@ -7,4 +7,4 @@ while ! mysqladmin ping -h "$RT_DB_HOST" -P "$RT_DB_PORT" -u "$RT_DB_USER" -p="$
 done
 
 # run indexer
-exec /run-every "$RT_INDEX_INTERVAL" rt-fulltext-indexer
+exec /run-every "$RT_INDEX_INTERVAL" /opt/rt5/sbin/rt-fulltext-indexer

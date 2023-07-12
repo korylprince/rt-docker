@@ -1,22 +1,38 @@
 /* Page */
-body { background: rgb(252, 254, 252) }
-div#body { background: rgb(252, 254, 252); color: rgb(0, 0, 0) }
+body {}
+div#body {}
 
 /* Menu bar */
 div#quickbar {}
 #main-navigation #app-nav.sf-shadow > li, #main-navigation #app-nav.sf-shadow > li > a, #prefs-menu > li, #prefs-menu > li > a, #logo .rtname {}
 
 /* Title bar */
-div#header { background: rgb(36, 86, 164); color: rgb(255, 255, 255) }
+div#header { background: rgb(36, 86, 164); color: #fff }
 
 /* Page title */
-div#header h1 { color: rgb(252, 254, 252) }
+div#header h1 { color: rgb(255, 255, 255) }
+
+/* Page menu */
+#page-navigation #page-menu > li, #page-navigation #page-menu >li > a { color: #fff }
+#page-navigation #page-menu > li:hover { background:  #003f89 }
 
 /* Page content */
-div#body {}
+div#body, .body-content-class {}
 
 /* Buttons */
-input[type="reset"], input[type="submit"], input[class="button"] { background: rgb(196, 2, 4); color: rgb(255, 255, 255) }
+input[type="reset"], input[type="submit"], input[class="button"] { background: rgb(196, 2, 4); color: #fff }
 
 /* Button hover */
-input[type="reset"]:hover, input[type="submit"]:hover, input[class="button"]:hover { background: rgb(204, 6, 4); color: rgb(255, 255, 255) }
+input[type="reset"]:hover, input[type="submit"]:hover, input[class="button"]:hover { background: rgb(204, 6, 4); }
+
+/* Search results */
+table.collection-as-table th.collection-as-table a {}
+
+/* Portlet Text */
+.titlebox .titlebox-title .left a, .titlebox .titlebox-title .left {}
+
+/* Selected bubble */
+.selectize-control.multi .selectize-input [data-value] {}
+
+/* Selected bubble (active) */
+.selectize-control.multi .selectize-input [data-value].active {}

@@ -1,35 +1,55 @@
-FROM golang:1.14-alpine as builder
+# build go dependencies
+FROM golang:1-alpine as builder
 
 RUN apk add --no-cache git
 
-RUN git clone --branch "v1.1" --single-branch --depth 1 \
-    https://github.com/korylprince/fileenv.git /go/src/github.com/korylprince/fileenv
+RUN go install github.com/korylprince/fileenv@v1.1.0
+RUN go install github.com/korylprince/twilio-send-sms@v1.0.0
 
-RUN git clone --branch "v1.0" --single-branch --depth 1 \
-    https://github.com/korylprince/twilio-send-sms.git /go/src/github.com/korylprince/twilio-send-sms
+# build rt5
+FROM alpine:3.18 as rt5-builder
 
-RUN go install github.com/korylprince/fileenv
-RUN go install github.com/korylprince/twilio-send-sms
+ARG VERSION
+ARG ALPINEDEPS
+ARG CPANDEPS
+
+RUN wget https://download.bestpractical.com/pub/rt/release/rt-$VERSION.tar.gz && \
+    tar xzf /rt-$VERSION.tar.gz && \
+    rm /rt-$VERSION.tar.gz
+
+WORKDIR /rt-$VERSION
+
+RUN apk add \
+        alpine-sdk \
+        graphviz \
+        perl-dev \
+        perl-app-cpanminus \
+        $ALPINEDEPS
+
+RUN cpanm -n $CPANDEPS
+
+RUN ./configure --disable-gpg && \
+    make testdeps && \
+    make install
 
 # build image
-FROM alpine:3.12
+FROM alpine:3.18
+
+ARG ALPINEDEPS
 
 COPY --from=builder /go/bin/fileenv /
 COPY --from=builder /go/bin/twilio-send-sms /send-sms
+COPY --from=rt5-builder /opt/rt5 /opt/rt5
+COPY --from=rt5-builder /usr/local/lib/perl5 /usr/local/lib/perl5
+COPY --from=rt5-builder /usr/local/share/perl5 /usr/local/share/perl5
 
-RUN apk add --no-cache bash python3 perl-ldap perl-gdtextutil perl-gdgraph opensmtpd ca-certificates mysql-client \
-    perl-http-headers-fast perl-cookie-baker perl-starlet \
-    perl-app-cpanminus make \
-    rt4=4.4.4-r3 && \
-    # needed for Plack
-    cpanm HTTP::Entity::Parser && \
-    # patch to use utf8mb4 encoding
-    sed -i "s/SET NAMES 'utf8'/SET NAMES 'utf8mb4'/g" /usr/lib/rt4/RT/Handle.pm
+RUN apk add --no-cache \
+    bash python3 opensmtpd ca-certificates mysql-client graphviz html2text $ALPINEDEPS
 
 RUN mkdir /shredder
 
-COPY Web_Local.pm /usr/lib/rt4/RT/Interface/
-COPY LocalConfig.pm /etc/rt4/RT_SiteConfig.d/
+COPY Web_Local.pm /opt/rt5/lib/RT/Interface/
+COPY LocalConfig.pm /opt/rt5/etc/RT_SiteConfig.d/
 COPY run.sh /
 COPY rt-search-id /
 

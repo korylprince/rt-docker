@@ -25,7 +25,7 @@ rm /etc/smtpd/aliases
 IFS=","
 for alias in $(echo "$RT_ALIASES"); do
 IFS=":" read -ra params <<< "$alias"
-    echo "${params[0]}: |/rt-search-id | rt-mailgate --url http://localhost --action correspond --queue \"${params[1]}\"" >> /etc/smtpd/aliases
+    echo "${params[0]}: |/rt-search-id | /opt/rt5/bin/rt-mailgate --url http://localhost --action correspond --queue \"${params[1]}\"" >> /etc/smtpd/aliases
 done
 
 # start smtpd
@@ -38,4 +38,4 @@ while ! mysqladmin ping -h "$RT_DB_HOST" -P "$RT_DB_PORT" -u "$RT_DB_USER" -p="$
 done
 
 # start rt
-exec rt-server --server Starlet
+exec /opt/rt5/sbin/rt-server --server Starlet

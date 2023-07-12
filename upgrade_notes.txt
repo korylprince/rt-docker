@@ -1,3 +1,22 @@
+# Upgrade 4.4.4 -> 5.0.4
+
+Alpine doesn't package rt5, so the Dockerfiles were updates to install all dependencies and "build" rt5 from scratch.
+
+Upgrading from 4.4.4 -> 5.0.4 has some sort of circular dependency issue where trying to upgrade the database schema fails because a field (CustomRoles.LookupType) doesn't exist. It's not added to the schema until 5.0.4, but one of the libs used during the database upgrade expects it to be there.
+
+To work around this, run the following SQL to add the field prematurely:
+
+    ALTER TABLE CustomRoles ADD COLUMN LookupType varchar(255) CHARACTER SET ascii;
+    UPDATE CustomRoles SET LookupType='RT::Queue-RT::Ticket';
+
+Then upgrade the database to 5.0.3, drop the field, and finish the upgrade to 5.0.4.
+
+After the database is upgraded, a cleanup script needs to be run:
+
+    PERL5LIB=/opt/rt5/lib /fileenv /opt/rt5/etc/upgrade/shrink-cgm-table
+
+# Upgrade 4.0.4 -> 4.4.2
+
 These are notes on upgrading an old instance of RT (4.0.4) to the 4.4.2. This includes adding full-text index and full UTF-8 support (utf8mb4.)
 
 Scripts are included for sending SMS through Twilio.
