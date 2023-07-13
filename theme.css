@@ -13,7 +13,8 @@ div#header { background: rgb(36, 86, 164); color: #fff }
 div#header h1 { color: rgb(255, 255, 255) }
 
 /* Page menu */
-#page-navigation #page-menu > li, #page-navigation #page-menu >li > a { color: #fff }
+#page-navigation { box-shadow: none; }
+#page-navigation #page-menu > li, #page-navigation #page-menu >li > a { background: rgb(36, 86, 164); color: #fff; }
 #page-navigation #page-menu > li:hover { background:  #003f89 }
 
 /* Page content */
