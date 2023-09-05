@@ -52,5 +52,6 @@ COPY Web_Local.pm /opt/rt5/lib/RT/Interface/
 COPY LocalConfig.pm /opt/rt5/etc/RT_SiteConfig.d/
 COPY run.sh /
 COPY rt-search-id /
+COPY config.js /opt/rt5/local/static/RichText/config.js
 
 CMD ["/fileenv", "bash", "/run.sh"]
